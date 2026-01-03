@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>988988.NET 导航</title>
+  <meta name="description" content="常用工具与站点导航，支持顶部分类与快速搜索。">
+
+  <style>
+    body{margin:0;font-family:Arial,"Microsoft YaHei",sans-serif;background:#f6f7fb;color:#111}
+    main{max-width:1100px;margin:20px auto;padding:0 16px}
+    header{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+    h1{font-size:18px;margin:0}
+    input[type=search]{padding:8px 10px;font-size:14px;border:1px solid #ccc;border-radius:6px;min-width:240px}
+
+    /* 顶部分类栏 */
+    nav{margin-top:10px;display:flex;flex-wrap:wrap;gap:8px}
+    .chip{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:6px 10px;border:1px solid #d1d5db;border-radius:999px;
+      background:#fff;color:#111;text-decoration:none;font-size:13px;font-weight:600;
+      cursor:pointer; user-select:none;
+    }
+    .chip[aria-current="true"]{border-color:#2563eb; box-shadow:0 6px 16px rgba(0,0,0,.08)}
+    .count{font-size:12px;color:#6b7280;font-weight:700}
+
+    section{margin-top:22px}
+    h2{font-size:15px;margin:0 0 10px;border-left:4px solid #2563eb;padding-left:8px}
+    ul{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+    @media(max-width:900px){ul{grid-template-columns:repeat(3,1fr)}}
+    @media(max-width:600px){ul{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:420px){ul{grid-template-columns:1fr}}
+
+    a.card{
+      display:flex;align-items:center;justify-content:center;min-height:52px;background:#fff;
+      border:1px solid #e5e7eb;border-radius:8px;text-decoration:none;color:#111;font-weight:600;
+      padding:0 10px;text-align:center;
+    }
+    a.card:hover{border-color:#93c5fd}
+    footer{margin-top:30px;font-size:12px;color:#6b7280;text-align:center}
+    .hidden{display:none}
+  </style>
+</head>
+
+<body>
+<main>
+
+<header>
+  <h1>导航</h1>
+  <input id="search" type="search" placeholder="搜索站点 / 工具 / 关键词…">
+</header>
+
+<!-- 顶部分类栏：JS 自动生成 -->
+<nav id="categoryBar" aria-label="分类"></nav>
+
+
+<section>
+  <h2>2Fa</h2>
+  <ul>
+    <li><a class="card" href="https://www.browserscan.net/zh/2fa" target="_blank" rel="noopener noreferrer">2Fa在线</a></li>
+    <li><a class="card" href="https://www.browserscan.net/zh/2fa/UKWOLHJD46CGCB4GD2KNAOQRLMQLJAI4" target="_blank" rel="noopener noreferrer">穿越火线</a></li>
+    <li><a class="card" href="https://www.browserscan.net/zh/2fa/UJW74JYVDX3LRFLEHIBLNVCGN43AORVA" target="_blank" rel="noopener noreferrer">大赢家</a></li>
+    <li><a class="card" href="https://www.browserscan.net/zh/2fa/btdoy57c3ctvz7b6z7q7jg5j4aysmczl" target="_blank" rel="noopener noreferrer">怪咖</a></li>
+    <li><a class="card" href="https://www.browserscan.net/zh/2fa/pplf73gkgk5zxpeogbjrobu5o2xdnkmn" target="_blank" rel="noopener noreferrer">青春</a></li>
+    <li><a class="card" href="https://www.browserscan.net/zh/2fa/e5yvoujf6sqmzlk7" target="_blank" rel="noopener noreferrer">巨硬</a></li>
+    <li><a class="card" href="https://www.browserscan.net/zh/2fa/DPPXL25HRF2JHRDE" target="_blank" rel="noopener noreferrer">管理员</a></li>
+  </ul>
+</section>
+
+
+<footer>© 988988.NET</footer>
+
+</main>
+
+<script>
+(function () {
+  const input = document.getElementById('search');
+  const sections = Array.from(document.querySelectorAll('section'));
+  const bar = document.getElementById('categoryBar');
+
+  // 给每个 section 设置一个稳定 id（用于分类定位/过滤）
+  sections.forEach((sec, idx) => {
+    const title = sec.querySelector('h2')?.innerText?.trim() || ('分类' + (idx + 1));
+    const id = 'cat-' + title.replace(/\s+/g,'-').replace(/[^\w\u4e00-\u9fa5-]/g,'');
+    sec.dataset.cat = title;
+    sec.id = sec.id || id;
+  });
+
+  // 构建顶部分类 chips（自动读取所有 section）
+  function buildCategoryBar() {
+    const totalLinks = document.querySelectorAll('section a.card').length;
+    const allBtn = document.createElement('button');
+    allBtn.className = 'chip';
+    allBtn.type = 'button';
+    allBtn.dataset.cat = 'ALL';
+    allBtn.innerHTML = '全部 <span class="count">(' + totalLinks + ')</span>';
+    bar.appendChild(allBtn);
+
+    sections.forEach(sec => {
+      const cat = sec.dataset.cat;
+      const count = sec.querySelectorAll('a.card').length;
+
+      const btn = document.createElement('button');
+      btn.className = 'chip';
+      btn.type = 'button';
+      btn.dataset.cat = cat;
+      btn.innerHTML = cat + ' <span class="count">(' + count + ')</span>';
+      bar.appendChild(btn);
+    });
+
+    setActiveCat('ALL');
+  }
+
+  function setActiveCat(cat) {
+    bar.querySelectorAll('.chip').forEach(b => {
+      b.setAttribute('aria-current', String(b.dataset.cat === cat));
+    });
+  }
+
+  // 分类过滤：仅在“没有搜索词”时生效；有搜索词时，以搜索过滤为准
+  function filterByCategory(cat) {
+    const q = input.value.trim();
+    if (q) return; // 搜索优先
+
+    setActiveCat(cat);
+
+    sections.forEach(sec => {
+      const match = (cat === 'ALL') || (sec.dataset.cat === cat);
+      sec.classList.toggle('hidden', !match);
+    });
+
+    // 选中具体分类时，滚动到该分类
+    if (cat !== 'ALL') {
+      const target = sections.find(s => s.dataset.cat === cat);
+      if (target) target.scrollIntoView({behavior:'smooth', block:'start'});
+    }
+  }
+
+  // 搜索过滤（按：链接文字 / URL / 分类标题）
+  function filterBySearch() {
+    const q = input.value.trim().toLowerCase();
+
+    // 有搜索词：自动把分类设置为“全部”，并按搜索过滤
+    if (q) setActiveCat('ALL');
+
+    sections.forEach(section => {
+      let sectionMatch = false;
+      const title = section.querySelector('h2').innerText.toLowerCase();
+      const links = section.querySelectorAll('a.card');
+
+      links.forEach(link => {
+        const text = link.innerText.toLowerCase();
+        const href = link.href.toLowerCase();
+        const hit = !q || text.includes(q) || href.includes(q) || title.includes(q);
+
+        link.parentElement.classList.toggle('hidden', !hit);
+        if (hit) sectionMatch = true;
+      });
+
+      section.classList.toggle('hidden', q ? !sectionMatch : false);
+    });
+  }
+
+  // 事件绑定
+  bar.addEventListener('click', (e) => {
+    const btn = e.target.closest('.chip');
+    if (!btn) return;
+    filterByCategory(btn.dataset.cat);
+  });
+
+  input.addEventListener('input', () => {
+    filterBySearch();
+    // 清空搜索后，回到“全部”并显示全部
+    if (!input.value.trim()) filterByCategory('ALL');
+  });
+
+  // 初始化
+  buildCategoryBar();
+})();
+</script>
+
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"version":"2024.11.0","token":"1101a086ff90446699548edafda19424","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>
